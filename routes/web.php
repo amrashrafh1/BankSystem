@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\PointController as AdminPointController;
 use App\Http\Controllers\PointController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -25,9 +26,10 @@ Route::get('/', function () {
     ]);
 });
 Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('/points', function () {
-        return Inertia::render('Points');
-    })->name('points');
+
+    Route::resource('admin/points', AdminPointController::class)->only(['index', 'store', 'destroy']);
+
+    Route::post('admin/points/search', [AdminPointController::class, 'search'])->name('points.search');
     
     Route::get('/points/1', [PointController::class, 'index'])->name('points');
     

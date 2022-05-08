@@ -3,6 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\AddCouponsJob;
+use Carbon\Carbon;
+use Carbon\CarbonInterval;
+use FrittenKeeZ\Vouchers\Models\Voucher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -14,21 +18,30 @@ class PointController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $vouchers = DB::table('vouchers')->get();
-        return Inertia::render('Admin/Points', ['vouchers' => $vouchers]);
+        if($request->ajax() && $request->has('page')) {
+            return response()->json(Voucher::orderBy('id', 'desc')->paginate(10));
+        }
+        return Inertia::render('Admin/Points/Index');
     }
 
+
     /**
-     * Show the form for creating a new resource.
+     * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function search(Request $request)
     {
-        //
+        if($request->ajax() && $request->method('post')) {
+            $validated = $request->validate([
+                'search' => 'required|string',
+            ]);
+            return response()->json(Voucher::orderBy('id', 'desc')->where('code', 'LIKE', "%{$validated['search']}%")->paginate(10));
+        }
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -38,41 +51,16 @@ class PointController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
+        $validate = $request->validate([
+            'points' => 'required|integer',
+            'count' => 'required|integer',
+            'starts_at' => 'required|date',
+            'expires_at' => 'required|date'
+        ]);
+        
+        AddCouponsJob::dispatch($validate);
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
+        return redirect()->intended('/dashboard');
     }
 
     /**
@@ -83,6 +71,7 @@ class PointController extends Controller
      */
     public function destroy($id)
     {
-        //
+        DB::table('vouchers')->where('id', $id)->delete();
+        return redirect()->intended('/dashboard');
     }
 }
