@@ -35,8 +35,14 @@
                                 <BreezeNavLink :href="route('dashboard')" :active="route().current('dashboard')">
                                     Dashboard
                                 </BreezeNavLink>
-                                <BreezeNavLink :href="route('points.index')" :active="route().current('points.index')">
+                                <BreezeNavLink :href="route('admin.points.index')" :active="route().current('admin.points.index')">
                                     Vouchers
+                                </BreezeNavLink>
+                                <BreezeNavLink :href="route('admin.prizes.index')" :active="route().current('admin.prizes.index')">
+                                    Prizes
+                                </BreezeNavLink>
+                                <BreezeNavLink :href="route('admin.transactions.index')" :active="route().current('admin.transactions.index')">
+                                    Transactions
                                 </BreezeNavLink>
                             </div>
                         </div>

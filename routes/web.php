@@ -1,7 +1,8 @@
 <?php
 
 use App\Http\Controllers\Admin\PointController as AdminPointController;
-use App\Http\Controllers\PointController;
+use App\Http\Controllers\Admin\PrizeController;
+use App\Http\Controllers\Admin\TransactionController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -15,7 +16,7 @@ use Inertia\Inertia;
 | routes are loaded by the RouteServiceProvider within a group which
 | contains the "web" middleware group. Now create something great!
 |
-*/
+ */
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -27,16 +28,26 @@ Route::get('/', function () {
 });
 Route::middleware(['auth', 'role:admin'])->group(function () {
 
-    Route::resource('admin/points', AdminPointController::class)->only(['index', 'store', 'destroy']);
-
-    Route::post('admin/points/search', [AdminPointController::class, 'search'])->name('points.search');
-    
-    Route::get('/points/1', [PointController::class, 'index'])->name('points');
-    
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
-    
+
+    Route::group(['prefix' => 'admin', 'as' => 'admin.'], function() {
+
+        Route::resource('points', AdminPointController::class)->only(['index', 'store', 'destroy']);
+
+        Route::post('points/search', [AdminPointController::class, 'search'])->name('points.search');
+
+        Route::resource('prizes', PrizeController::class);
+
+        Route::post('prizes/search', [PrizeController::class, 'search'])->name('prizes.search');
+
+        Route::resource('transactions', TransactionController::class)->except(['show']);
+        
+        Route::post('transactions/search', [TransactionController::class, 'search'])->name('transactions.search');
+
+    });
+
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

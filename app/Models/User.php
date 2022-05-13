@@ -43,4 +43,14 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    public function prizes()
+    {
+        return $this->belongsToMany(Prize::class, 'users_prizes');
+    }
+    
+    public function transactions_sent()
+    {
+        return $this->belongsTo(Transaction::class, 'sender_id');
+    }
+
 }

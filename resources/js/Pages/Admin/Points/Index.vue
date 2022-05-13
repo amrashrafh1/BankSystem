@@ -72,10 +72,9 @@
                                                 <td class="px-6 py-4"> {{voucher.expires_at}}</td>
                                                 <td class="px-6 py-4"> {{voucher.redeemed_at}}</td>
                                                 <td class="px-6 py-4">
-                                                    <Link :href='route("points.destroy", voucher.id)' method="DELETE"
-                                                        as="button" type="button" @click='getResults'
+                                                    <button @click="deleteItem(voucher.id)"
                                                         class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-3 py-1 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
-                                                    Delete</Link>
+                                                    Delete</button>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -152,7 +151,7 @@
                                     </h3>
                                     <div class="mt-2">
                                         <p class="text-sm text-gray-500">
-                                            <form @submit.prevent="form.post(route('points.store'))">
+                                            <form @submit.prevent="form.post(route('admin.points.store'))">
                                                 <div class="relative z-0 w-full mb-6 group">
                                                     <input type="number" name="points" v-model="form.points"
                                                         class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
@@ -264,6 +263,12 @@
                         this.current = 1;
                         this.total = this.vouchersData.total;
                     });
+            },
+            deleteItem(item_id) {
+                this.$inertia.delete(`points/${item_id}`, {
+                    onBefore: () => confirm('Are you sure you want to delete this item?'),
+                    onSuccess: () => { this.getResults() }
+                });
             }
         }
     }
